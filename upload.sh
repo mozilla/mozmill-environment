@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-scp *.zip people:public_html/mozmill-crowd/
+TARGET_LOCATION="public_html/downloads/mozmill-env/"
+
+scp *.zip people:$TARGET_LOCATION
 rm *.zip
