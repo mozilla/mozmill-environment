@@ -44,22 +44,22 @@ deactivate
 echo "Copying template files and reorganizing folder structure"
 mv $ENV_DIR/lib/python$PYTHON_VERSION/site-packages/ $ENV_DIR/python-lib
 
-FOLDERS="lib/ .Python include/ python-lib/pip* bin/activate* bin/python* bin/easy_install* bin/pip*"
+FOLDERS="lib/ include/ python-lib/pip* bin/activate* bin/python* bin/easy_install* bin/pip*"
 for folder in $FOLDERS ; do
     rm -r $ENV_DIR/$folder
 done
 
-cp -r templates/ $ENV_DIR
+cp -r templates/* $ENV_DIR
 
 echo "Updating scripts for relocation of the environment"
-sed -i '' 's/#!.*/#!\/usr\/bin\/env python/g' $ENV_DIR/bin/*
+sed -i 's/#!.*/#!\/usr\/bin\/env python/g' $ENV_DIR/bin/*
 
 echo "Deleting pre-compiled Python modules"
 find $ENV_DIR/ -name '*.pyc' -exec rm {} \;
 find $ENV_DIR/ -name '*.pyo' -exec rm {} \;
 find $ENV_DIR/ -name '*.so' -exec rm {} \;
 
-"Building zip archive of environment"
+echo "Building zip archive of environment"
 zip -r $TARGET_ARCHIVE $ENV_DIR
 
 cleanup
