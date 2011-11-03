@@ -8,9 +8,11 @@ import subprocess
 import shutil
 import sys
 import urllib
+import zipfile
 
 
 URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/BaseSystem/msys-core/msys-1.0.11/MSYS-1.0.11.exe/download"
+URL_MINTTY = "http://mintty.googlecode.com/files/mintty-1.0.1-msys.zip"
 URL_VIRTUALENV = "https://bitbucket.org/ianb/virtualenv/raw/1.5.2/virtualenv.py"
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -42,15 +44,13 @@ def make_relocatable(filepath):
     for file in files:
         for line in fileinput.input(file, inplace=1):
             if fileinput.isfirstline() and line.startswith("#!"):
-                print "#!python"
+                # Only on Windows we have to set Python into unbuffered mode
+                print "#!python -u"
             else:
                 print line,
 
         fileinput.close()
 
-
-make_relocatable("%s\\Scripts\\*.py" % (python_dir))
-sys.exit(1)
 
 parser = optparse.OptionParser()
 (options, args) = parser.parse_args()
@@ -70,11 +70,18 @@ download(URL_MSYS, setup_msys)
 subprocess.call([ setup_msys, '/VERYSILENT', '/SP-', '/DIR=%s' % (msys_dir),
                   '/NOICONS' ])
 
+print "Download and install 'mintty'"
+mintty_path = os.path.join(download_dir, os.path.basename(URL_MINTTY))
+download(URL_MINTTY, mintty_path)
+zip = zipfile.ZipFile(mintty_path, "r")
+zip.extract("mintty.exe", "%s\\bin" % (msys_dir))
+zip.close()
+
 print "Copy template files into environment"
-os.system("xcopy /S /I /F %s %s" % (template_dir, env_dir))
+os.system("xcopy /S /I /H %s %s" % (template_dir, env_dir))
 
 print "Copy Python installation (including pythonXX.dll into environment"
-os.system("xcopy /S /I %s %s\\python" % (sys.prefix, env_dir))
+os.system("xcopy /S /I /H %s %s\\python" % (sys.prefix, env_dir))
 os.system("xcopy %s\\system32\\python*.dll %s" % (os.environ['WINDIR'], python_dir))
 
 print "Download 'virtualenv' and create new virtual environment"

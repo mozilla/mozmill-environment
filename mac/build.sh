@@ -2,7 +2,7 @@
 
 MOZMILL_VERSION=$1
 
-VIRTUALENV_URL=https://bitbucket.org/ianb/virtualenv/raw/tip/virtualenv.py
+VIRTUALENV_URL=https://bitbucket.org/ianb/virtualenv/raw/1.5.2/virtualenv.py
 
 ENV_DIR=mozmill-env
 PYTHON_VERSION=$(python -c "import sys;print sys.version[:3]")
