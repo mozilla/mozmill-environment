@@ -1,4 +1,4 @@
-Test environment for Mozmill test execution via the command line on Mac.
+Test environment for Mozmill test execution via the command line on Linux.
 
 Usage
 ====

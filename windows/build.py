@@ -27,10 +27,7 @@ def download(url, filename):
     '''Download a remote file from an URL to the specified local folder.'''
 
     try:
-        
         urllib.urlretrieve(url, filename)
-
-        return filename
     except Exception, e:
         print "Failure downloading '%s': %s" % (url, str(e))
         raise
@@ -67,8 +64,8 @@ print "Download and install 'MSYS' in unattended mode. Answer questions with 'y'
 os.system("mkdir %s" % download_dir)
 setup_msys = os.path.join(download_dir, "setup_msys.exe")
 download(URL_MSYS, setup_msys)
-subprocess.call([ setup_msys, '/VERYSILENT', '/SP-', '/DIR=%s' % (msys_dir),
-                  '/NOICONS' ])
+subprocess.check_call([setup_msys, '/VERYSILENT', '/SP-', '/DIR=%s' % (msys_dir),
+                       '/NOICONS' ])
 
 print "Download and install 'mintty'"
 mintty_path = os.path.join(download_dir, os.path.basename(URL_MINTTY))
@@ -87,7 +84,7 @@ os.system("xcopy %s\\system32\\python*.dll %s" % (os.environ['WINDIR'], python_d
 print "Download 'virtualenv' and create new virtual environment"
 virtualenv_path = os.path.join(download_dir, os.path.basename(URL_VIRTUALENV))
 filename = download(URL_VIRTUALENV, virtualenv_path)
-subprocess.call(["python", filename, "--no-site-packages", "mozmill-env"])
+subprocess.check_call(["python", filename, "--no-site-packages", "mozmill-env"])
 
 print "Reorganizing folder structure"
 os.system("move /y %s\\Scripts %s" % (env_dir, python_dir))
@@ -97,9 +94,10 @@ os.system("rd /s /q %s\\Lib" % (env_dir))
 make_relocatable("%s\\Scripts\\*.py" % (python_dir))
 
 print "Installing required Python modules"
-subprocess.call(["%s\\run.cmd" % env_dir, "pip", "install",
-                 "--global-option='--pure'", "mercurial==1.9.3"])
-subprocess.call(["%s\\run.cmd" % env_dir, "pip", "install", "mozmill==%s" % (mozmill_version)])
+subprocess.check_call(["%s\\run.cmd" % env_dir, "pip", "install",
+                       "--global-option='--pure'", "mercurial==1.9.3"])
+subprocess.check_call(["%s\\run.cmd" % env_dir, "pip", "install",
+                       "mozmill==%s" % (mozmill_version)])
 make_relocatable("%s\\Scripts\\*.py" % (python_dir))
 make_relocatable("%s\\Scripts\\hg" % (python_dir))
 
