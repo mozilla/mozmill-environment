@@ -1,0 +1,91 @@
+# This file must be used with "source bin/activate" *from bash*
+# you cannot run it directly
+
+# Inject command to deactivate the environment
+deactivate () {
+    if [ -n "$_OLD_PATH" ] ; then
+        PATH="$_OLD_PATH"
+        export PATH
+        unset _OLD_PATH
+    fi
+
+    # This should detect bash and zsh, which have a hash command that must
+    # be called to get it to forget past commands.  Without forgetting
+    # past commands the $PATH changes we made may not be respected
+    if [ -n "$BASH" -o -n "$ZSH_VERSION" ] ; then
+        hash -r
+    fi
+
+    if [ -n "$_OLD_PS1" ] ; then
+        PS1="$_OLD_PS1"
+        export PS1
+        unset _OLD_PS1
+    fi
+
+    if [ -n "$_OLD_PYTHONPATH" ] ; then
+        PYTHONPATH="$_OLD_PYTHONPATH"
+        export PYTHONPATH
+        unset _OLD_PYTHONPATH
+    fi
+
+    unset ENV_PATH
+    unset MOZMILL_ROOT
+
+    if [ ! "$1" = "nondestructive" ] ; then
+        # Self destruct!
+        unset deactivate
+    fi
+}
+
+
+# Ensure that we source only once into the environment to avoid the cluttering
+# of environment variables
+if [ -n "${MOZMILL_ROOT:+1}" ]; then
+    return
+fi
+
+# unset irrelavent variables
+deactivate nondestructive
+
+# Store the absolute root path of the environment
+ENV_PATH=$(cd $(dirname $(dirname $BASH_SOURCE)); pwd)
+
+# Backup current values of environment variables we are modifying
+_OLD_PYTHONPATH="$PYTHONPATH"
+_OLD_PATH="$PATH"
+_OLD_PS1="$PS1"
+
+# Build necessary paths
+if [ "x$OSTYPE" = "xmsys" ] ; then
+    MOZMILL_ROOT="`pwd -W | sed s,/,\\\\\\\\,g`"
+    PATH="`pwd`/bin:$PATH"
+    # msys will convert any env vars with PATH in it to use msys
+    # form and will unconvert before launching
+    PYTHONPATH="`pwd -W`/python-lib;$PYTHONPATH"
+else
+    MOZMILL_ROOT="$ENV_PATH"
+    PYTHONPATH="$ENV_PATH/python-lib:$PYTHONPATH"
+    PATH="$ENV_PATH/bin:$PATH"
+fi
+
+# Construct prompt which contains the name of the environment
+if [ "`basename \"$ENV_PATH\"`" = "__" ] ; then
+    # special case for Aspen magic directories
+    # see http://www.zetadev.com/software/aspen/
+    PS1="[`basename \`dirname \"$ENV_PATH\"\``] $PS1"
+else
+    PS1="(`basename \"$ENV_PATH\"`)$PS1"
+fi
+
+# Export new values of environment variables
+export MOZMILL_ROOT
+export PYTHONPATH
+export PATH
+export PS1
+
+# This should detect bash and zsh, which have a hash command that must
+# be called to get it to forget past commands.  Without forgetting
+# past commands the $PATH changes we made may not be respected
+if [ -n "$BASH" -o -n "$ZSH_VERSION" ] ; then
+    hash -r
+fi
