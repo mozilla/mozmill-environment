@@ -11,7 +11,7 @@ import urllib
 import zipfile
 
 
-URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/BaseSystem/msys-core/msys-1.0.11/MSYS-1.0.11.exe/download"
+URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/Base/msys-core/msys-1.0.11/MSYS-1.0.11.exe/download"
 URL_MINTTY = "http://mintty.googlecode.com/files/mintty-1.0.1-msys.zip"
 URL_VIRTUALENV = "https://bitbucket.org/ianb/virtualenv/raw/1.5.2/virtualenv.py"
 
