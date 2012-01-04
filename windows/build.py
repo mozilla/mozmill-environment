@@ -83,8 +83,8 @@ os.system("xcopy %s\\system32\\python*.dll %s" % (os.environ['WINDIR'], python_d
 
 print "Download 'virtualenv' and create new virtual environment"
 virtualenv_path = os.path.join(download_dir, os.path.basename(URL_VIRTUALENV))
-filename = download(URL_VIRTUALENV, virtualenv_path)
-subprocess.check_call(["python", filename, "--no-site-packages", "mozmill-env"])
+download(URL_VIRTUALENV, virtualenv_path)
+subprocess.check_call(["python", virtualenv_path, "--no-site-packages", env_dir])
 
 print "Reorganizing folder structure"
 os.system("move /y %s\\Scripts %s" % (env_dir, python_dir))
@@ -111,7 +111,7 @@ os.system("rd /s /q %s\\build" % (env_dir))
 
 print "Building zip archive of environment"
 target_archive = os.path.join(os.path.dirname(base_dir), "win-%s" % mozmill_version)
-shutil.make_archive(target_archive, "zip", env_dir)
+shutil.make_archive(target_archive, "zip", base_dir, os.path.basename(env_dir))
 
 os.system("rd /s /q %s" % (env_dir))
 
