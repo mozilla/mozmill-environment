@@ -95,9 +95,9 @@ make_relocatable("%s\\Scripts\\*.py" % (python_dir))
 
 print "Installing required Python modules"
 subprocess.check_call(["%s\\run.cmd" % env_dir, "pip", "install",
-                       "--global-option='--pure'", "mercurial==1.9.3"])
+                       "--upgrade", "--global-option='--pure'", "mercurial==1.9.3"])
 subprocess.check_call(["%s\\run.cmd" % env_dir, "pip", "install",
-                       "mozmill==%s" % (mozmill_version)])
+                       "--upgrade", "mozmill==%s" % (mozmill_version)])
 make_relocatable("%s\\Scripts\\*.py" % (python_dir))
 make_relocatable("%s\\Scripts\\hg" % (python_dir))
 
@@ -110,7 +110,7 @@ os.system("del /s /q %s\\*.pyc" % (python_dir))
 os.system("rd /s /q %s\\build" % (env_dir))
 
 print "Building zip archive of environment"
-target_archive = os.path.join(os.path.dirname(base_dir), "win-%s" % mozmill_version)
+target_archive = os.path.join(os.path.dirname(base_dir), "%s-win" % mozmill_version)
 shutil.make_archive(target_archive, "zip", base_dir, os.path.basename(env_dir))
 
 os.system("rd /s /q %s" % (env_dir))
