@@ -6,6 +6,7 @@ SET ENV=%ENV_DRIVE%%ENV_PATH%
 
 SET PATH=%PATH%;%ENV%\\python\\;%ENV%\\python\\Scripts
 SET PYTHONPATH=%ENV%\\python\\Lib
+SET PYTHONUNBUFFERED=1
 
 SET HOME=%ENV%
 
