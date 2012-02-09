@@ -11,9 +11,14 @@ import urllib
 import zipfile
 
 
-URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/Base/msys-core/msys-1.0.11/MSYS-1.0.11.exe/download"
-URL_MINTTY = "http://mintty.googlecode.com/files/mintty-1.0.1-msys.zip"
-URL_VIRTUALENV = "https://bitbucket.org/ianb/virtualenv/raw/1.5.2/virtualenv.py"
+VERSION_MERCURIAL = "2.1"
+VERSION_MINTTY = "1.0.1"
+VERSION_MSYS = "1.0.11"
+VERSION_VIRTUALENV = "1.5.2"
+
+URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/Base/msys-core/msys-%(VERSION)s/MSYS-%(VERSION)s.exe/download" % { 'VERSION' : VERSION_MSYS }
+URL_MINTTY = "http://mintty.googlecode.com/files/mintty-%s-msys.zip" % VERSION_MINTTY
+URL_VIRTUALENV = "https://bitbucket.org/ianb/virtualenv/raw/%s/virtualenv.py" % VERSION_VIRTUALENV
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 template_dir = os.path.join(base_dir, "templates")
@@ -95,7 +100,8 @@ make_relocatable("%s\\Scripts\\*.py" % (python_dir))
 
 print "Installing required Python modules"
 subprocess.check_call(["%s\\run.cmd" % env_dir, "pip", "install",
-                       "--upgrade", "--global-option='--pure'", "mercurial==1.9.3"])
+                       "--upgrade", "--global-option='--pure'",
+                       "mercurial==%s" % VERSION_MERCURIAL])
 subprocess.check_call(["%s\\run.cmd" % env_dir, "pip", "install",
                        "--upgrade", "mozmill==%s" % (mozmill_version)])
 make_relocatable("%s\\Scripts\\*.py" % (python_dir))

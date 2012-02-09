@@ -2,11 +2,14 @@
 
 MOZMILL_VERSION=$1
 
-VIRTUALENV_URL=https://bitbucket.org/ianb/virtualenv/raw/1.5.2/virtualenv.py
+MERCURIAL_VERSION=2.1
+PYTHON_VERSION=$(python -c "import sys;print sys.version[:3]")
+VIRTUALENV_VERSION=1.5.2
 
 ENV_DIR=mozmill-env
-PYTHON_VERSION=$(python -c "import sys;print sys.version[:3]")
 TARGET_ARCHIVE=$(dirname $(pwd))/$MOZMILL_VERSION-$(basename $(pwd)).zip
+
+VIRTUALENV_URL=https://bitbucket.org/ianb/virtualenv/raw/$VIRTUALENV_VERSION/virtualenv.py
 
 
 cleanup () {
@@ -32,7 +35,7 @@ if [ ! -n "${VIRTUAL_ENV:+1}" ]; then
 fi
 
 echo "Installing required Python modules"
-pip install --upgrade --global-option="--pure" mercurial==1.9.3
+pip install --upgrade --global-option="--pure" mercurial==$MERCURIAL_VERSION
 pip install --upgrade simplejson
 
 echo "Installing Mozmill $MOZMILL_VERSION"
