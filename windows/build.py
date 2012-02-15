@@ -14,11 +14,11 @@ import zipfile
 VERSION_MERCURIAL = "2.1"
 VERSION_MINTTY = "1.0.1"
 VERSION_MSYS = "1.0.11"
-VERSION_VIRTUALENV = "1.5.2"
+VERSION_VIRTUALENV = "1.7"
 
 URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/Base/msys-core/msys-%(VERSION)s/MSYS-%(VERSION)s.exe/download" % { 'VERSION' : VERSION_MSYS }
 URL_MINTTY = "http://mintty.googlecode.com/files/mintty-%s-msys.zip" % VERSION_MINTTY
-URL_VIRTUALENV = "https://bitbucket.org/ianb/virtualenv/raw/%s/virtualenv.py" % VERSION_VIRTUALENV
+URL_VIRTUALENV = "https://raw.github.com/pypa/virtualenv/%s/virtualenv.py" % VERSION_VIRTUALENV
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 template_dir = os.path.join(base_dir, "templates")
@@ -86,10 +86,10 @@ print "Copy Python installation (including pythonXX.dll into environment"
 os.system("xcopy /S /I /H %s %s\\python" % (sys.prefix, env_dir))
 os.system("xcopy %s\\system32\\python*.dll %s" % (os.environ['WINDIR'], python_dir))
 
-print "Download 'virtualenv' and create new virtual environment"
+print "Fetching version %s of virtualenv and creating new environment" % VERSION_VIRTUALENV
 virtualenv_path = os.path.join(download_dir, os.path.basename(URL_VIRTUALENV))
 download(URL_VIRTUALENV, virtualenv_path)
-subprocess.check_call(["python", virtualenv_path, "--no-site-packages", env_dir])
+subprocess.check_call(["python", virtualenv_path, env_dir])
 
 print "Reorganizing folder structure"
 os.system("move /y %s\\Scripts %s" % (env_dir, python_dir))
