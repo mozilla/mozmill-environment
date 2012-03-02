@@ -9,7 +9,7 @@ import os
 import subprocess
 import shutil
 import sys
-import urllib
+import urllib2
 import zipfile
 
 
@@ -94,10 +94,12 @@ def download(url, filename):
     '''Download a remote file from an URL to the specified local folder.'''
 
     try:
-        urllib.urlretrieve(url, filename)
-    except Exception, e:
+        req = urllib2.urlopen(url)
+        with open(filename, 'wb') as fp:
+            shutil.copyfileobj(req, fp)
+    except urllib2.URLError, e:
         logging.critical("Failure downloading '%s': %s", url, str(e))
-        raise
+        raise e
 
 
 def make_relocatable(filepath):
