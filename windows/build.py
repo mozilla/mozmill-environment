@@ -3,6 +3,7 @@
 import fileinput
 import fnmatch
 import glob
+import logging
 import optparse
 import os
 import subprocess
@@ -29,6 +30,7 @@ env_dir = os.path.join(base_dir, "mozmill-env")
 msys_dir = os.path.join(env_dir, "msys")
 python_dir = os.path.join(env_dir, "python")
 
+logging.basicConfig(level=logging.INFO)
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """
@@ -94,7 +96,7 @@ def download(url, filename):
     try:
         urllib.urlretrieve(url, filename)
     except Exception, e:
-        print "Failure downloading '%s': %s" % (url, str(e))
+        logging.critical("Failure downloading '%s': %s", url, str(e))
         raise
 
 
@@ -120,11 +122,11 @@ if not args:
     parser.error("Version of Mozmill to be installed is required as first parameter.")
 mozmill_version = args[0]
 
-print "Delete all possible existent folders"
+logging.info("Delete all possible existent folders")
 for directory in (download_dir, env_dir, msys_dir):
     shutil.rmtree(directory, True)
 
-print "Download and install 'MSYS' in unattended mode. Answer questions with 'y' and 'n'."
+logging.info("Download and install 'MSYS' in unattended mode. Answer questions with 'y' and 'n'.")
 # See: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
 os.mkdir(download_dir)
 setup_msys = os.path.join(download_dir, "setup_msys.exe")
@@ -132,28 +134,28 @@ download(URL_MSYS, setup_msys)
 subprocess.check_call([setup_msys, '/VERYSILENT', '/SP-', '/DIR=%s' % (msys_dir),
                        '/NOICONS'])
 
-print "Download and install 'mintty'"
+logging.info("Download and install 'mintty'")
 mintty_path = os.path.join(download_dir, os.path.basename(URL_MINTTY))
 download(URL_MINTTY, mintty_path)
 mintty_zip = zipfile.ZipFile(mintty_path, "r")
 mintty_zip.extract("mintty.exe", os.path.join(msys_dir, 'bin'))
 mintty_zip.close()
 
-print "Copy template files into environment"
+logging.info("Copy template files into environment")
 copytree(template_dir, env_dir, True)
 
-print "Copy Python installation (including pythonXX.dll into environment)"
+logging.info("Copy Python installation (including pythonXX.dll into environment)")
 copytree(sys.prefix, os.path.join(env_dir, 'python'), True)
 dlls = glob.glob(os.path.join(os.environ['WINDIR'], "system32", "python*.dll"))
 for dll_file in dlls:
     shutil.copy(dll_file, python_dir)
 
-print "Fetching version %s of virtualenv and creating new environment" % VERSION_VIRTUALENV
+logging.info("Fetching version %s of virtualenv and creating new environment", VERSION_VIRTUALENV)
 virtualenv_path = os.path.join(download_dir, os.path.basename(URL_VIRTUALENV))
 download(URL_VIRTUALENV, virtualenv_path)
 subprocess.check_call(["python", virtualenv_path, env_dir])
 
-print "Reorganizing folder structure"
+logging.info("Reorganizing folder structure")
 shutil.rmtree(os.path.join(python_dir, "Lib", "site-packages"), True)
 shutil.move(os.path.join(env_dir, "Lib", "site-packages"),
             os.path.join(python_dir, "Lib"))
@@ -163,7 +165,7 @@ copytree(os.path.join(env_dir, "Scripts"), python_scripts_dir)
 shutil.rmtree(os.path.join(env_dir, "Scripts"))
 make_relocatable(os.path.join(python_scripts_dir, "*.py"))
 
-print "Installing required Python modules"
+logging.info("Installing required Python modules")
 run_cmd_path = os.path.join(env_dir, "run.cmd")
 subprocess.check_call([run_cmd_path, "pip", "install",
                        "--upgrade", "--global-option='--pure'",
@@ -173,18 +175,18 @@ subprocess.check_call([run_cmd_path, "pip", "install",
 make_relocatable(os.path.join(python_scripts_dir, "*.py"))
 make_relocatable(os.path.join(python_scripts_dir, "hg"))
 
-print "Deleting easy_install and pip scripts"
+logging.info("Deleting easy_install and pip scripts")
 for pattern in ('easy_install*', 'pip*'):
     remove_files(python_scripts_dir, pattern)
 
-print "Deleting pre-compiled Python modules and build folder"
+logging.info("Deleting pre-compiled Python modules and build folder")
 remove_files(python_dir, "*.pyc")
 shutil.rmtree(os.path.join(env_dir, "build"), True)
 
-print "Building zip archive of environment"
+logging.info("Building zip archive of environment")
 target_archive = os.path.join(os.path.dirname(base_dir), "%s-win" % mozmill_version)
 shutil.make_archive(target_archive, "zip", base_dir, os.path.basename(env_dir))
 
 shutil.rmtree(env_dir, True)
 
-print "Successfully created the environment: '%s.zip'" % target_archive
+logging.info("Successfully created the environment: '%s.zip'", target_archive)
