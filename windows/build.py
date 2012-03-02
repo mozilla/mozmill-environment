@@ -79,6 +79,13 @@ def copytree(src, dst, symlinks=False, ignore=None):
     if errors:
         raise EnvironmentError(errors)
 
+    
+def is_exe(path):
+    file_object = open(path, "r")
+    result = file_object.read(2) == "MZ"  # this is the "EXE signature"
+    file_object.close()
+    return result
+
 
 def remove_files(base_dir, pattern):
     '''Removes all the files matching the given pattern recursively.'''
@@ -133,8 +140,12 @@ logging.info("Download and install 'MSYS' in unattended mode. Answer questions w
 os.mkdir(download_dir)
 setup_msys = os.path.join(download_dir, "setup_msys.exe")
 download(URL_MSYS, setup_msys)
-subprocess.check_call([setup_msys, '/VERYSILENT', '/SP-', '/DIR=%s' % (msys_dir),
-                       '/NOICONS'])
+if is_exe(setup_msys):
+    subprocess.check_call([setup_msys, '/VERYSILENT', '/SP-', '/NOICONS',
+                           '/DIR=%s' % (msys_dir)])
+else:
+    logging.critical("Downloaded setup_msys.exe is not a valid Windows executable.")
+    raise Exception("Cannot install MSYS.")
 
 logging.info("Download and install 'mintty'")
 mintty_path = os.path.join(download_dir, os.path.basename(URL_MINTTY))
