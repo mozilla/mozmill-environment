@@ -197,7 +197,7 @@ remove_files(python_dir, "*.pyc")
 shutil.rmtree(os.path.join(env_dir, "build"), True)
 
 logging.info("Building zip archive of environment")
-target_archive = os.path.join(os.path.dirname(base_dir), "%s-win" % mozmill_version)
+target_archive = os.path.join(os.path.dirname(base_dir), "%s-windows" % mozmill_version)
 shutil.make_archive(target_archive, "zip", base_dir, os.path.basename(env_dir))
 
 shutil.rmtree(env_dir, True)
