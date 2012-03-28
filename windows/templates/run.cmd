@@ -14,7 +14,7 @@ SET HOME=%ENV%
 
 IF %1!==! goto interactive
   REM MSYS cannot handle backslashes. So we have to replace all of them with slashes
-  %ENV%\\msys\\bin\\bash --login -c "%CMDLINE:\=/%"
+  %ENV%\\msys\\bin\\bash --login -c '%CMDLINE:\=/%'
   goto end
 
 :interactive
