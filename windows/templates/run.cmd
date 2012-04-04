@@ -10,7 +10,7 @@ SET PATH=%PATH%;%ENV%\\python\\;%ENV%\\python\\Scripts
 SET PYTHONPATH=%ENV%\\python\\Lib
 SET PYTHONUNBUFFERED=1
 
-SET HOME=%ENV%
+SET HOME=%CD%
 
 IF %1!==! goto interactive
   REM MSYS cannot handle backslashes. So we have to replace all of them with slashes
