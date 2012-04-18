@@ -4,17 +4,14 @@ VERSION_MOZMILL=$1
 
 VERSION_MERCURIAL=2.1
 VERSION_PYTHON=$(python -c "import sys;print sys.version[:3]")
-VERSION_VIRTUALENV=1.7
 
 ENV_DIR=mozmill-env
 TARGET_ARCHIVE=$(dirname $(pwd))/$VERSION_MOZMILL-$(basename $(pwd)).zip
 
-URL_VIRTUALENV=https://raw.github.com/pypa/virtualenv/$VERSION_VIRTUALENV/virtualenv.py
-
 
 cleanup () {
     echo "Cleaning-up temporary files and folders"
-    rm -r tmp $ENV_DIR
+    rm -r $ENV_DIR
 }
 
 if [ ! -n "$1" ] ; then
@@ -22,9 +19,8 @@ if [ ! -n "$1" ] ; then
   exit 1
 fi
 
-echo "Fetching version $VERSION_VIRTUALENV of virtualenv and creating new environment"
-mkdir tmp && curl $URL_VIRTUALENV > tmp/virtualenv.py
-python tmp/virtualenv.py $ENV_DIR
+echo "Creating new virtual environment"
+python ../assets/virtualenv.py $ENV_DIR
 
 echo "Activating the new environment"
 source $ENV_DIR/bin/activate

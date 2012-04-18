@@ -14,23 +14,20 @@ import zipfile
 
 
 VERSION_MERCURIAL = "2.1"
-VERSION_MINTTY = "1.0.1"
-VERSION_MSYS = "1.0.11"
-VERSION_VIRTUALENV = "1.7"
 
-URL_MSYS = "http://sourceforge.net/projects/mingw/files/MSYS/Base/msys-core/msys-%(VERSION)s/MSYS-%(VERSION)s.exe/download" % { 'VERSION' : VERSION_MSYS }
-URL_MINTTY = "http://mintty.googlecode.com/files/mintty-%s-msys.zip" % VERSION_MINTTY
-URL_VIRTUALENV = "https://raw.github.com/pypa/virtualenv/%s/virtualenv.py" % VERSION_VIRTUALENV
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
+
+assets_dir = os.path.join(base_dir, os.path.pardir, 'assets')
 template_dir = os.path.join(base_dir, "templates")
-download_dir = os.path.join(base_dir, "downloads")
 
 env_dir = os.path.join(base_dir, "mozmill-env")
 msys_dir = os.path.join(env_dir, "msys")
 python_dir = os.path.join(env_dir, "python")
 
+
 logging.basicConfig(level=logging.INFO)
+
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """
@@ -79,13 +76,6 @@ def copytree(src, dst, symlinks=False, ignore=None):
     if errors:
         raise EnvironmentError(errors)
 
-    
-def is_exe(path):
-    file_object = open(path, "r")
-    result = file_object.read(2) == "MZ"  # this is the "EXE signature"
-    file_object.close()
-    return result
-
 
 def remove_files(base_dir, pattern):
     '''Removes all the files matching the given pattern recursively.'''
@@ -95,18 +85,6 @@ def remove_files(base_dir, pattern):
 
     for a_file in files:
         os.remove(a_file)
-
-
-def download(url, filename):
-    '''Download a remote file from an URL to the specified local folder.'''
-
-    try:
-        req = urllib2.urlopen(url)
-        with open(filename, 'wb') as fp:
-            shutil.copyfileobj(req, fp)
-    except urllib2.URLError, e:
-        logging.critical("Failure downloading '%s': %s", url, str(e))
-        raise e
 
 
 def make_relocatable(filepath):
@@ -132,25 +110,23 @@ if not args:
 mozmill_version = args[0]
 
 logging.info("Delete all possible existent folders")
-for directory in (download_dir, env_dir, msys_dir):
-    shutil.rmtree(directory, True)
+shutil.rmtree(env_dir, True)
 
-logging.info("Download and install 'MSYS' in unattended mode. Answer questions with 'y' and 'n'.")
+logging.info("Install 'MSYS' in unattended mode. Answer questions with 'y' and 'n'.")
 # See: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
-os.mkdir(download_dir)
-setup_msys = os.path.join(download_dir, "setup_msys.exe")
-download(URL_MSYS, setup_msys)
-if is_exe(setup_msys):
-    subprocess.check_call([setup_msys, '/VERYSILENT', '/SP-', '/NOICONS',
-                           '/DIR=%s' % (msys_dir)])
-else:
-    logging.critical("Downloaded setup_msys.exe is not a valid Windows executable.")
-    raise Exception("Cannot install MSYS.")
+msys_file = os.path.join(assets_dir, "msys_setup.exe")
+subprocess.check_call([msys_file, '/VERYSILENT', '/SP-', '/NOICONS',
+                       '/DIR=%s' % (msys_dir)])
 
-logging.info("Download and install 'mintty'")
-mintty_path = os.path.join(download_dir, os.path.basename(URL_MINTTY))
-download(URL_MINTTY, mintty_path)
-mintty_zip = zipfile.ZipFile(mintty_path, "r")
+logging.info("Replace MSYS DLLs with memory rebased versions.")
+msys_dll_file = os.path.join(assets_dir, 'msys_dll.zip')
+msys_dll_zip = zipfile.ZipFile(msys_dll_file, "r")
+msys_dll_zip.extractall(os.path.join(msys_dir, 'bin'))
+msys_dll_zip.close()
+
+logging.info("Install 'mintty'")
+mintty_file = os.path.join(assets_dir, 'msys_mintty.zip')
+mintty_zip = zipfile.ZipFile(mintty_file, "r")
 mintty_zip.extract("mintty.exe", os.path.join(msys_dir, 'bin'))
 mintty_zip.close()
 
@@ -163,15 +139,15 @@ dlls = glob.glob(os.path.join(os.environ['WINDIR'], "system32", "python*.dll"))
 for dll_file in dlls:
     shutil.copy(dll_file, python_dir)
 
-logging.info("Fetching version %s of virtualenv and creating new environment", VERSION_VIRTUALENV)
-virtualenv_path = os.path.join(download_dir, os.path.basename(URL_VIRTUALENV))
-download(URL_VIRTUALENV, virtualenv_path)
-subprocess.check_call(["python", virtualenv_path, env_dir])
+logging.info("Creating new virtual environment")
+virtualenv_file = os.path.join(assets_dir, 'virtualenv.py')
+subprocess.check_call(["python", virtualenv_file, env_dir])
 
 logging.info("Reorganizing folder structure")
 shutil.rmtree(os.path.join(python_dir, "Lib", "site-packages"), True)
 shutil.move(os.path.join(env_dir, "Lib", "site-packages"),
             os.path.join(python_dir, "Lib"))
+shutil.rmtree(os.path.join(env_dir, "Include"), True)
 shutil.rmtree(os.path.join(env_dir, "Lib"), True)
 python_scripts_dir = os.path.join(python_dir, "Scripts")
 copytree(os.path.join(env_dir, "Scripts"), python_scripts_dir)
