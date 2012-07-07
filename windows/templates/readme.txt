@@ -1,6 +1,6 @@
 Test environment for Mozmill test execution via the command line on Windows.
 
-Note: Configure the environment before the first use by running setup.cmd.
+
 
 Usage
 =====
