@@ -15,6 +15,7 @@ import zipfile
 
 VERSION_MERCURIAL = "2.1"
 
+VERSION_MOZDOWNLOAD = "1.4"
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -159,8 +160,13 @@ run_cmd_path = os.path.join(env_dir, "run.cmd")
 subprocess.check_call([run_cmd_path, "pip", "install",
                        "--upgrade", "--global-option='--pure'",
                        "mercurial==%s" % VERSION_MERCURIAL])
+
+logging.info("Installing Mozmill %s and related packages" % mozmill_version)
 subprocess.check_call([run_cmd_path, "pip", "install",
-                       "--upgrade", "mozmill==%s" % (mozmill_version)])
+                       "--upgrade", "mozmill==%s" % mozmill_version])
+subprocess.check_call([run_cmd_path, "pip", "install",
+                       "--upgrade", "mozdownload==%s" % VERSION_MOZDOWNLOAD])
+
 make_relocatable(os.path.join(python_scripts_dir, "*.py"))
 make_relocatable(os.path.join(python_scripts_dir, "hg"))
 
