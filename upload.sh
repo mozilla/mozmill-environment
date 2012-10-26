@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TARGET_LOCATION="public_html/downloads/mozmill-env/"
+TARGET_LOCATION="/var/www/html/mozmill-env/"
 
-scp *.zip people:$TARGET_LOCATION
+scp *.zip mozqa:$TARGET_LOCATION
 rm *.zip
