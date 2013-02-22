@@ -3,9 +3,8 @@
 VERSION_MOZMILL=$1
 
 VERSION_MERCURIAL=2.1
+VERSION_MOZDOWNLOAD=1.6
 VERSION_PYTHON=$(python -c "import sys;print sys.version[:3]")
-
-VERSION_MOZDOWNLOAD=1.4
 
 ENV_DIR=mozmill-env
 TARGET_ARCHIVE=$(dirname $(pwd))/$VERSION_MOZMILL-$(basename $(pwd)).zip
