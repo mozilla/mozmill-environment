@@ -3,7 +3,7 @@
 VERSION_MOZMILL=$1
 
 VERSION_MERCURIAL=2.1
-VERSION_MOZDOWNLOAD=1.6
+VERSION_MOZDOWNLOAD=1.7
 VERSION_PYTHON=$(python -c "import sys;print sys.version[:3]")
 
 ENV_DIR=mozmill-env

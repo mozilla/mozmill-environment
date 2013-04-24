@@ -14,7 +14,7 @@ import zipfile
 
 
 VERSION_MERCURIAL = "2.1"
-VERSION_MOZDOWNLOAD = "1.6"
+VERSION_MOZDOWNLOAD = "1.7"
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
