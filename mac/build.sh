@@ -60,8 +60,8 @@ find $ENV_DIR/ -name '*.pyc' -exec rm {} \;
 find $ENV_DIR/ -name '*.pyo' -exec rm {} \;
 find $ENV_DIR/ -name '*.so' -exec rm {} \;
 
-"Building zip archive of environment"
-zip -r $TARGET_ARCHIVE $ENV_DIR
+echo "Building zip archive of environment"
+zip -FSr $TARGET_ARCHIVE $ENV_DIR
 
 cleanup
 
