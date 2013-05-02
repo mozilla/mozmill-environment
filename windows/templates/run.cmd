@@ -6,7 +6,7 @@ SET ENV_DRIVE=%~d0%
 SET ENV_PATH=%~p0%
 SET ENV=%ENV_DRIVE%%ENV_PATH%
 
-SET PATH=%PATH%;%ENV%\\python\\;%ENV%\\python\\Scripts
+SET PATH=%ENV%\\python\\;%ENV%\\python\\Scripts;%PATH%
 SET PYTHONPATH=%ENV%\\python\\Lib
 SET PYTHONUNBUFFERED=1
 
