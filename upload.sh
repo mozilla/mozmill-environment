@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
-TARGET_LOCATION="/var/www/html/mozmill-env/"
+HOST="mozqa"
+TARGET_LOCATION="/data/www/mozqa.com/mozmill-env/"
 
-scp *.zip mozqa:$TARGET_LOCATION
+echo "Uploading files ..."
+scp *.zip $HOST:$TARGET_LOCATION
+
+echo "Updating folder and file permissions..."
+ssh $HOST "sudo /usr/local/sbin/puppetctl run"
