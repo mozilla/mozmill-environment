@@ -12,21 +12,20 @@ import sys
 import urllib2
 import zipfile
 
+# Link to the folder which contains the zip archives of virtualenv
+URL_VIRTUALENV = 'https://codeload.github.com/pypa/virtualenv/zip/'
 
-VERSION_MERCURIAL = "2.1"
+VERSION_MERCURIAL = "2.6.2"
 VERSION_MOZDOWNLOAD = "1.7.2"
+VERSION_VIRTUALENV = '1.9.1'
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
-
-assets_dir = os.path.join(base_dir, os.path.pardir, 'assets')
-template_dir = os.path.join(base_dir, "templates")
-
-env_dir = os.path.join(base_dir, "mozmill-env")
-msys_dir = os.path.join(env_dir, "msys")
-python_dir = os.path.join(env_dir, "python")
-
-
-logging.basicConfig(level=logging.INFO)
+dir_base = os.path.abspath(os.path.dirname(__file__))
+dir_assets = os.path.join(dir_base, os.path.pardir, 'assets')
+dir_env = os.path.join(dir_base, "mozmill-env")
+dir_msys = os.path.join(dir_env, "msys")
+dir_python = os.path.join(dir_env, "python")
+dir_tmp=os.path.join(dir_base, "tmp")
+dir_template = os.path.join(dir_base, "templates")
 
 
 def copytree(src, dst, symlinks=False, ignore=None):
@@ -77,10 +76,20 @@ def copytree(src, dst, symlinks=False, ignore=None):
         raise EnvironmentError(errors)
 
 
-def remove_files(base_dir, pattern):
+def download(url, target):
+    """Downloads the specified url to the given target"""
+
+    response = urllib2.urlopen(url)
+    with open(target, 'wb') as f:
+        f.write(response.read())
+
+    return target
+
+
+def remove_files(dir_base, pattern):
     '''Removes all the files matching the given pattern recursively.'''
     files = [os.path.join(root, filename)
-             for root, dirnames, filenames in os.walk(base_dir)
+             for root, dirnames, filenames in os.walk(dir_base)
                 for filename in fnmatch.filter(filenames, pattern)]
 
     for a_file in files:
@@ -102,85 +111,105 @@ def make_relocatable(filepath):
         fileinput.close()
 
 
-parser = optparse.OptionParser()
-(options, args) = parser.parse_args()
+def main():
+    logging.basicConfig(level=logging.INFO)
 
-if not args:
-    parser.error("Version of Mozmill to be installed is required as first parameter.")
-mozmill_version = args[0]
+    parser = optparse.OptionParser()
+    (options, args) = parser.parse_args()
 
-logging.info("Delete all possible existent folders")
-shutil.rmtree(env_dir, True)
+    if not args:
+        parser.error("Version of Mozmill to be installed is required as first parameter.")
+    mozmill_version = args[0]
 
-logging.info("Install 'MSYS' in unattended mode. Answer questions with 'y' and 'n'.")
-# See: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
-msys_file = os.path.join(assets_dir, "msys_setup.exe")
-subprocess.check_call([msys_file, '/VERYSILENT', '/SP-', '/NOICONS',
-                       '/DIR=%s' % (msys_dir)])
+    logging.info("Delete all possible existent folders")
+    shutil.rmtree(dir_env, True)
 
-logging.info("Replace MSYS DLLs with memory rebased versions.")
-msys_dll_file = os.path.join(assets_dir, 'msys_dll.zip')
-msys_dll_zip = zipfile.ZipFile(msys_dll_file, "r")
-msys_dll_zip.extractall(os.path.join(msys_dir, 'bin'))
-msys_dll_zip.close()
+    # Ensure we have a clean and existent temporary directory
+    shutil.rmtree(dir_tmp, True)
+    os.makedirs(dir_tmp)
 
-logging.info("Install 'mintty'")
-mintty_file = os.path.join(assets_dir, 'msys_mintty.zip')
-mintty_zip = zipfile.ZipFile(mintty_file, "r")
-mintty_zip.extract("mintty.exe", os.path.join(msys_dir, 'bin'))
-mintty_zip.close()
+    logging.info('Downloading virtualenv %s' % VERSION_VIRTUALENV)
+    virtualenv_file = download(URL_VIRTUALENV + VERSION_VIRTUALENV,
+                               os.path.join(dir_tmp, 'virtualenv.zip'))
+    virtualenv_zip = zipfile.ZipFile(virtualenv_file)
+    virtualenv_zip.extractall(dir_tmp)
+    virtualenv_zip.close()
 
-logging.info("Copy template files into environment")
-copytree(template_dir, env_dir, True)
+    logging.info("Creating new virtual environment")
+    virtualenv_script = os.path.join(dir_tmp,
+                                     'virtualenv-%s' % VERSION_VIRTUALENV,
+                                     'virtualenv.py')
+    subprocess.check_call(["python", virtualenv_script, dir_env])
 
-logging.info("Copy Python installation (including pythonXX.dll into environment)")
-copytree(sys.prefix, os.path.join(env_dir, 'python'), True)
-dlls = glob.glob(os.path.join(os.environ['WINDIR'], "system32", "python*.dll"))
-for dll_file in dlls:
-    shutil.copy(dll_file, python_dir)
+    logging.info("Install 'MSYS' in unattended mode. Answer questions with 'y' and 'n'.")
+    # See: http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline
+    msys_file = os.path.join(dir_assets, "msys_setup.exe")
+    subprocess.check_call([msys_file, '/VERYSILENT', '/SP-', '/NOICONS',
+                           '/DIR=%s' % (dir_msys)])
 
-logging.info("Creating new virtual environment")
-virtualenv_file = os.path.join(assets_dir, 'virtualenv.py')
-subprocess.check_call(["python", virtualenv_file, env_dir])
+    logging.info("Replace MSYS DLLs with memory rebased versions.")
+    msys_dll_file = os.path.join(dir_assets, 'msys_dll.zip')
+    msys_dll_zip = zipfile.ZipFile(msys_dll_file, "r")
+    msys_dll_zip.extractall(os.path.join(dir_msys, 'bin'))
+    msys_dll_zip.close()
 
-logging.info("Reorganizing folder structure")
-shutil.rmtree(os.path.join(python_dir, "Lib", "site-packages"), True)
-shutil.move(os.path.join(env_dir, "Lib", "site-packages"),
-            os.path.join(python_dir, "Lib"))
-shutil.rmtree(os.path.join(env_dir, "Include"), True)
-shutil.rmtree(os.path.join(env_dir, "Lib"), True)
-python_scripts_dir = os.path.join(python_dir, "Scripts")
-copytree(os.path.join(env_dir, "Scripts"), python_scripts_dir)
-shutil.rmtree(os.path.join(env_dir, "Scripts"))
-make_relocatable(os.path.join(python_scripts_dir, "*.py"))
+    logging.info("Install 'mintty'")
+    mintty_file = os.path.join(dir_assets, 'msys_mintty.zip')
+    mintty_zip = zipfile.ZipFile(mintty_file, "r")
+    mintty_zip.extract("mintty.exe", os.path.join(dir_msys, 'bin'))
+    mintty_zip.close()
 
-logging.info("Installing required Python modules")
-run_cmd_path = os.path.join(env_dir, "run.cmd")
-subprocess.check_call([run_cmd_path, "pip", "install",
-                       "--upgrade", "--global-option='--pure'",
-                       "mercurial==%s" % VERSION_MERCURIAL])
+    logging.info("Copy template files into environment")
+    copytree(dir_template, dir_env, True)
 
-logging.info("Installing Mozmill %s and related packages" % mozmill_version)
-subprocess.check_call([run_cmd_path, "pip", "install",
-                       "--upgrade", "mozmill==%s" % mozmill_version])
-subprocess.check_call([run_cmd_path, "pip", "install",
-                       "--upgrade", "mozdownload==%s" % VERSION_MOZDOWNLOAD])
+    logging.info("Copy Python installation (including pythonXX.dll into environment)")
+    copytree(sys.prefix, os.path.join(dir_env, 'python'), True)
+    dlls = glob.glob(os.path.join(os.environ['WINDIR'], "system32", "python*.dll"))
+    for dll_file in dlls:
+        shutil.copy(dll_file, dir_python)
 
-make_relocatable(os.path.join(python_scripts_dir, "*.py"))
-make_relocatable(os.path.join(python_scripts_dir, "hg"))
+    logging.info("Reorganizing folder structure")
+    shutil.rmtree(os.path.join(dir_python, "Lib", "site-packages"), True)
+    shutil.move(os.path.join(dir_env, "Lib", "site-packages"),
+                os.path.join(dir_python, "Lib"))
+    shutil.rmtree(os.path.join(dir_env, "Include"), True)
+    shutil.rmtree(os.path.join(dir_env, "Lib"), True)
+    python_scripts_dir = os.path.join(dir_python, "Scripts")
+    copytree(os.path.join(dir_env, "Scripts"), python_scripts_dir)
+    shutil.rmtree(os.path.join(dir_env, "Scripts"))
+    make_relocatable(os.path.join(python_scripts_dir, "*.py"))
 
-logging.info("Deleting easy_install and pip scripts")
-for pattern in ('easy_install*', 'pip*'):
-    remove_files(python_scripts_dir, pattern)
+    logging.info("Installing required Python modules")
+    run_cmd_path = os.path.join(dir_env, "run.cmd")
+    subprocess.check_call([run_cmd_path, "pip", "install",
+                           "--upgrade", "--global-option='--pure'",
+                           "mercurial==%s" % VERSION_MERCURIAL])
 
-logging.info("Deleting pre-compiled Python modules and build folder")
-remove_files(python_dir, "*.pyc")
-shutil.rmtree(os.path.join(env_dir, "build"), True)
+    logging.info("Installing Mozmill %s and related packages" % mozmill_version)
+    subprocess.check_call([run_cmd_path, "pip", "install",
+                           "--upgrade", "mozmill==%s" % mozmill_version])
+    subprocess.check_call([run_cmd_path, "pip", "install",
+                           "--upgrade", "mozdownload==%s" % VERSION_MOZDOWNLOAD])
 
-logging.info("Building zip archive of environment")
-target_archive = os.path.join(os.path.dirname(base_dir), "%s-windows" % mozmill_version)
-shutil.make_archive(target_archive, "zip", base_dir, os.path.basename(env_dir))
+    make_relocatable(os.path.join(python_scripts_dir, "*.py"))
+    make_relocatable(os.path.join(python_scripts_dir, "hg"))
 
-shutil.rmtree(env_dir, True)
+    logging.info("Deleting easy_install and pip scripts")
+    for pattern in ('easy_install*', 'pip*'):
+        remove_files(python_scripts_dir, pattern)
 
-logging.info("Successfully created the environment: '%s.zip'", target_archive)
+    logging.info("Deleting pre-compiled Python modules and build folder")
+    remove_files(dir_python, "*.pyc")
+    shutil.rmtree(os.path.join(dir_env, "build"), True)
+
+    logging.info("Building zip archive of environment")
+    target_archive = os.path.join(os.path.dirname(dir_base), "%s-windows" % mozmill_version)
+    shutil.make_archive(target_archive, "zip", dir_base, os.path.basename(dir_env))
+
+    shutil.rmtree(dir_env, True)
+    shutil.rmtree(dir_tmp, True)
+
+    logging.info("Successfully created the environment: '%s.zip'", target_archive)
+
+if __name__ == "__main__":
+    main()
