@@ -16,7 +16,7 @@ import zipfile
 URL_VIRTUALENV = 'https://codeload.github.com/pypa/virtualenv/zip/'
 
 VERSION_MERCURIAL = "2.6.2"
-VERSION_MOZDOWNLOAD = "1.7.2"
+VERSION_MOZDOWNLOAD = "1.8"
 VERSION_VIRTUALENV = '1.9.1'
 
 dir_base = os.path.abspath(os.path.dirname(__file__))
