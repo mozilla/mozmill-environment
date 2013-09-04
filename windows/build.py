@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import ctypes
 import fileinput
 import fnmatch
 import glob
@@ -116,6 +117,10 @@ def main():
 
     parser = optparse.OptionParser()
     (options, args) = parser.parse_args()
+
+    if not ctypes.windll.shell32.IsUserAnAdmin():
+        logging.error("Sorry, this script requires administrative privileges.")
+        sys.exit(126)
 
     if not args:
         parser.error("Version of Mozmill to be installed is required as first parameter.")
