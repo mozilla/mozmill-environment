@@ -123,8 +123,8 @@ def main():
         sys.exit(126)
 
     if not args:
-        parser.error("Version of Mozmill to be installed is required as first parameter.")
-    mozmill_version = args[0]
+        parser.error("Version of Mozmill-Automation to be installed is required as first parameter.")
+    mozmill_automation_version = args[0]
 
     logging.info("Delete all possible existent folders")
     shutil.rmtree(dir_env, True)
@@ -184,17 +184,17 @@ def main():
     shutil.rmtree(os.path.join(dir_env, "Scripts"))
     make_relocatable(os.path.join(python_scripts_dir, "*.py"))
 
-    logging.info("Installing required Python modules")
     run_cmd_path = os.path.join(dir_env, "run.cmd")
+
+    logging.info("Pre-installing mercurial %s in pure mode" % VERSION_MERCURIAL)
     subprocess.check_call([run_cmd_path, "pip", "install",
                            "--upgrade", "--global-option='--pure'",
                            "mercurial==%s" % VERSION_MERCURIAL])
 
-    logging.info("Installing Mozmill %s and related packages" % mozmill_version)
+    logging.info("Installing mozmill-automation %s and related packages" % mozmill_automation_version)
     subprocess.check_call([run_cmd_path, "pip", "install",
-                           "--upgrade", "mozmill==%s" % mozmill_version])
-    subprocess.check_call([run_cmd_path, "pip", "install",
-                           "--upgrade", "mozdownload==%s" % VERSION_MOZDOWNLOAD])
+                           "--upgrade", "mozmill-automation==%s" %
+                               mozmill_automation_version])
 
     make_relocatable(os.path.join(python_scripts_dir, "*.py"))
     make_relocatable(os.path.join(python_scripts_dir, "hg"))
@@ -208,7 +208,7 @@ def main():
     shutil.rmtree(os.path.join(dir_env, "build"), True)
 
     logging.info("Building zip archive of environment")
-    target_archive = os.path.join(os.path.dirname(dir_base), "%s-windows" % mozmill_version)
+    target_archive = os.path.join(os.path.dirname(dir_base), "%s-windows" % mozmill_automation_version)
     shutil.make_archive(target_archive, "zip", dir_base, os.path.basename(dir_env))
 
     shutil.rmtree(dir_env, True)

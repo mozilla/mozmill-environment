@@ -4,7 +4,7 @@
 URL_VIRTUALENV=https://codeload.github.com/pypa/virtualenv/zip/
 
 VERSION_PYTHON=$(python -c "import sys;print sys.version[:3]")
-VERSION_MOZMILL=$1
+VERSION_MOZMILL_AUTOMATION=$1
 
 VERSION_MERCURIAL=2.6.2
 VERSION_MOZDOWNLOAD=1.9
@@ -14,7 +14,7 @@ DIR_BASE=$(cd $(dirname ${BASH_SOURCE}); pwd)
 DIR_ENV=${DIR_BASE}/mozmill-env
 DIR_TMP=${DIR_BASE}/tmp
 
-TARGET_ARCHIVE=$(dirname $(pwd))/$VERSION_MOZMILL-$(basename $(pwd)).zip
+TARGET_ARCHIVE=$(dirname $(pwd))/$VERSION_MOZMILL_AUTOMATION-$(basename $(pwd)).zip
 
 
 cleanup () {
@@ -24,7 +24,7 @@ cleanup () {
 }
 
 if [ ! -n "$1" ] ; then
-  echo Version of Mozmill to be installed is required as first parameter.
+  echo Version of Mozmill-Automation to be installed is required as first parameter.
   exit 1
 fi
 
@@ -42,13 +42,11 @@ if [ ! -n "${VIRTUAL_ENV:+1}" ]; then
     exit 1
 fi
 
-echo "Installing required Python modules"
+echo "Pre-installing mercurial $VERSION_MERCURIAL in pure mode"
 pip install --upgrade --global-option="--pure" mercurial==$VERSION_MERCURIAL
-pip install --upgrade simplejson
 
-echo "Installing Mozmill $VERSION_MOZMILL and related packages"
-pip install --upgrade mozmill==$VERSION_MOZMILL
-pip install --upgrade mozdownload==$VERSION_MOZDOWNLOAD
+echo "Installing mozmill-automation $VERSION_MOZMILL_AUTOMATION and related packages"
+pip install --upgrade mozmill_automation==$VERSION_MOZMILL_AUTOMATION
 
 echo "Deactivating the environment"
 deactivate
