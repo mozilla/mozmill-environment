@@ -207,6 +207,9 @@ def main():
     remove_files(dir_python, "*.pyc")
     shutil.rmtree(os.path.join(dir_env, "build"), True)
 
+    logging.info("Deleting MSYS home directory")
+    shutil.rmtree(os.path.join(dir_msys, 'home'))
+
     logging.info("Building zip archive of environment")
     target_archive = os.path.join(os.path.dirname(dir_base), "%s-windows" % mozmill_automation_version)
     shutil.make_archive(target_archive, "zip", dir_base, os.path.basename(dir_env))
