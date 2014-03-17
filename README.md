@@ -19,10 +19,10 @@ Python installer), you are forced to manually setup the python installation.
 Follow the steps below to glue all the pieces together:
 
 #### Steps
-1. Install Python: "msiexec /i python-2.7.2.msi /passive ADDLOCAL=Extensions ALLUSERS=1"
+1. Install Python: "msiexec /i python-2.7.5.msi /passive ADDLOCAL=Extensions ALLUSERS=1"
 2. Execute the 'build.py' script with the version of Mozmill as parameter
 3. Answer the questions of the MSYS installer with 'y' and 'n'.
-4. Uninstall Python: "msiexec /x python-2.7.2.msi /passive"
+4. Uninstall Python: "msiexec /x python-2.7.5.msi /passive"
 
 ## Assets
 We don't want to be dependent on the download of most of the external tools and
