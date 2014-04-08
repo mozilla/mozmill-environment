@@ -18,7 +18,7 @@ URL_VIRTUALENV = 'https://codeload.github.com/pypa/virtualenv/zip/'
 
 VERSION_MERCURIAL = '2.6.2'
 VERSION_MOZDOWNLOAD = '1.9'
-VERSION_VIRTUALENV = '1.9.1'
+VERSION_VIRTUALENV = '1.10.1'
 
 dir_base = os.path.abspath(os.path.dirname(__file__))
 dir_assets = os.path.join(dir_base, os.path.pardir, 'assets')
