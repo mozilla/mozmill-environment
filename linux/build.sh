@@ -6,8 +6,8 @@ URL_VIRTUALENV=https://codeload.github.com/pypa/virtualenv/zip/
 VERSION_PYTHON=$(python -c "import sys;print sys.version[:3]")
 VERSION_MOZMILL_AUTOMATION=$1
 
-VERSION_MERCURIAL=2.6.2
-VERSION_MOZDOWNLOAD=1.9
+VERSION_MERCURIAL=3.2.4
+VERSION_MOZDOWNLOAD=1.12
 VERSION_VIRTUALENV=1.10.1
 
 DIR_BASE=$(cd $(dirname ${BASH_SOURCE}); pwd)
