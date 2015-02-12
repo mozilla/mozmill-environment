@@ -16,8 +16,7 @@ import zipfile
 # Link to the folder which contains the zip archives of virtualenv
 URL_VIRTUALENV = 'https://codeload.github.com/pypa/virtualenv/zip/'
 
-VERSION_MERCURIAL = '3.2.4'
-VERSION_MOZDOWNLOAD = '1.12'
+VERSION_MERCURIAL = '2.6.2'
 VERSION_VIRTUALENV = '1.10.1'
 
 dir_base = os.path.abspath(os.path.dirname(__file__))
@@ -25,7 +24,7 @@ dir_assets = os.path.join(dir_base, os.path.pardir, 'assets')
 dir_env = os.path.join(dir_base, 'mozmill-env')
 dir_msys = os.path.join(dir_env, 'msys')
 dir_python = os.path.join(dir_env, 'python')
-dir_tmp=os.path.join(dir_base, 'tmp')
+dir_tmp = os.path.join(dir_base, 'tmp')
 dir_template = os.path.join(dir_base, 'templates')
 
 
