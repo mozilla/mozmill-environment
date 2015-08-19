@@ -194,11 +194,9 @@ def main():
 
     logging.info('Installing mozmill-automation %s and related packages' % mozmill_automation_version)
     subprocess.check_call([run_cmd_path, 'pip', 'install',
-                           '--upgrade', 'mozmill-automation==%s' %
-                               mozmill_automation_version])
-    subprocess.check_call([run_cmd_path, 'pip', 'install',
-                           '--upgrade', 'mozdownload==%s' %
-                               VERSION_MOZDOWNLOAD])
+                           '--upgrade',
+                           'mozmill-automation==%s' % mozmill_automation_version,
+                           'mozdownload==%s' % VERSION_MOZDOWNLOAD])
 
     make_relocatable(os.path.join(python_scripts_dir, '*.py'))
     make_relocatable(os.path.join(python_scripts_dir, 'hg'))

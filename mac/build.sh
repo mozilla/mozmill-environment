@@ -46,8 +46,7 @@ echo "Pre-installing mercurial $VERSION_MERCURIAL in pure mode"
 pip install --upgrade --global-option="--pure" mercurial==$VERSION_MERCURIAL
 
 echo "Installing mozmill-automation $VERSION_MOZMILL_AUTOMATION and related packages"
-pip install --upgrade mozmill_automation==$VERSION_MOZMILL_AUTOMATION
-pip install --upgrade mozdownload==$VERSION_MOZDOWNLOAD
+pip install --upgrade mozmill_automation==$VERSION_MOZMILL_AUTOMATION mozdownload==$VERSION_MOZDOWNLOAD
 
 echo "Deactivating the environment"
 deactivate
