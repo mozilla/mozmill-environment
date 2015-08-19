@@ -17,6 +17,7 @@ import zipfile
 URL_VIRTUALENV = 'https://codeload.github.com/pypa/virtualenv/zip/'
 
 VERSION_MERCURIAL = '2.6.2'
+VERSION_MOZDOWNLOAD = '1.17'
 VERSION_VIRTUALENV = '1.10.1'
 
 dir_base = os.path.abspath(os.path.dirname(__file__))
@@ -195,6 +196,9 @@ def main():
     subprocess.check_call([run_cmd_path, 'pip', 'install',
                            '--upgrade', 'mozmill-automation==%s' %
                                mozmill_automation_version])
+    subprocess.check_call([run_cmd_path, 'pip', 'install',
+                           '--upgrade', 'mozdownload==%s' %
+                               VERSION_MOZDOWNLOAD])
 
     make_relocatable(os.path.join(python_scripts_dir, '*.py'))
     make_relocatable(os.path.join(python_scripts_dir, 'hg'))

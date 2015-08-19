@@ -7,7 +7,8 @@ VERSION_PYTHON=$(python -c "import sys;print sys.version[:3]")
 VERSION_MOZMILL_AUTOMATION=$1
 
 VERSION_MERCURIAL=2.6.2
-VERSION_VIRTUALENV=1.10.1
+VERSION_MOZDOWNLOAD=1.17
+VERSION_VIRTUALENV=13.1.0
 
 DIR_BASE=$(cd $(dirname ${BASH_SOURCE}); pwd)
 DIR_ENV=${DIR_BASE}/mozmill-env
@@ -46,6 +47,7 @@ pip install --upgrade --global-option="--pure" mercurial==$VERSION_MERCURIAL
 
 echo "Installing mozmill-automation $VERSION_MOZMILL_AUTOMATION and related packages"
 pip install --upgrade mozmill_automation==$VERSION_MOZMILL_AUTOMATION
+pip install --upgrade mozdownload==$VERSION_MOZDOWNLOAD
 
 echo "Deactivating the environment"
 deactivate
